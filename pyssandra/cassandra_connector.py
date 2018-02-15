@@ -58,6 +58,18 @@ class FloatType(DataType):
         super(FloatType, self).__init__(name, 'float')
 
 
+class MetaData:
+
+    def __init__(self, key, value):
+        self.key = key
+        self.value = value
+
+    def __str__(self):
+        return '{}: {}'.format(self.key, self.value)
+
+
+
+
 class ModelMetaclass(type):
 
     def __new__(cls, name, bases, attrs):
