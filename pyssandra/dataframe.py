@@ -1,5 +1,8 @@
 # coding: utf-8
 
+import logging
+
+import cassandra
 import pandas as pd
 
 
@@ -8,42 +11,79 @@ class DataFrame(pd.DataFrame):
     Add a new methods to pandas DataFrame object.
     """
 
-    def _cqlsh_create_table(self, key_space, table_name, data_types, primary_key):
+    def _get_data_type(self):
         """
-        Generate CREATE TABLE commande to execute
-
-        :param key_space:
-        :param table_name:
-        :param data_types: dict
-        :param primary_key: name of the primary key
+        Create a {"column_name": "type", ...} like dict for each column of the data
         :return:
         """
 
-        if not isinstance(data_types, dict):
-            raise TypeError('data_type should be a {"column_name": "type", ...} like dict')
+        column_names = self.columns
+        column_dtype = self.dtypes
+        pass
 
-        key_table = '{}.{}'.format(key_space, table_name) if key_space else table_name
+    def _create_data_type(self, types):
+        """
+         Create a {"column_name": "type", ...} like dict manually
+        :param types: dict or tuple
+        :return:
+        """
+        if isinstance(types, dict):
+            return types
 
-        col_names_and_type = []
-        for column_name, dtype in data_types.items():
-            if column_name == primary_key:
-                col_names_and_type.append('{} {} PRIMARY KEY'.format(column_name, dtype))
-            else:
-                col_names_and_type.append('{} {}'.format(column_name, dtype))
+        else:
+            column_names = self.columns
+            return dict(zip(column_names, types))
 
-        command_string = \
-            'CREATE TABLE {table} ( {column_name_and_type} );'.format(table=key_table,
-                                                                      column_name_and_type=', '.join(col_names_and_type))
-        return command_string
+    def _create_insert_command(self, table_name, data_types):
+        # Insert rows
+        insert_command = 'INSERT INTO ' \
+                         '{table} ({col_names}) ' \
+                         'VALUES ({values})'.format(table=table_name,
+                                                    col_names=', '.join(
+                                                        data_types.keys()),
+                                                    values=', '.join(
+                                                        ['%s'] * len(data_types)))
 
-    def to_cassandra(self, cassandra_session):
+        return insert_command
 
-        columns = self.columns
+    def to_cassandra(self,
+                     cassandra_session,
+                     table_name=None,
+                     data_types=None,
+                     primary_key=None,
+                     create_table=False,
+                     debug=False):
+        """"""
+
+        # Check if table_name matches colnames of dataframe
+        if set(self.columns) != set(data_types.keys()):
+            raise KeyError('Column names do not match data types')
+
+        # Create table
+        if create_table:
+            # table_name = create_table
+            types = self._create_data_type(types=data_types)
+            create_table_command = self._cqlsh_create_table(table_name=table_name,
+                                                            data_types=types,
+                                                            primary_key=primary_key)
+            try:
+                cassandra_session.execute(create_table_command)
+            except cassandra.AlreadyExists:
+                logging.WARN('Table {} already exists.'.format(table_name))
 
         for index, row in self.iterrows():
-            pass
+            sql = self._create_insert_command(table_name=table_name, data_types=data_types)
+            values = tuple(row)
 
-        pass
+            try:
+                if debug:
+                    print(sql)
+                    print(values)
+                else:
+                    cassandra_session.execute(sql, values)
+
+            except Exception as e:
+                logging.warning(e)
 
     @classmethod
     def from_s3(cls, data):
