@@ -8,13 +8,16 @@ import pandas as pd
 from . import cassandra_connector as cql
 
 
-class DataFrame(pd.DataFrame):
+class CassandraDataFrame(pd.DataFrame):
     """
     Add a new methods to pandas DataFrame object.
     """
 
     # def __init__(self, **kwargs):
     #     super(DataFrame, self).__init__(**kwargs)
+    @property
+    def _constructor(self):
+        return CassandraDataFrame
 
     def _get_data_type(self):
         """
