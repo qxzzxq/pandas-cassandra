@@ -128,7 +128,7 @@ class Model(dict, metaclass=ModelMetaclass):
         col_names_and_type = [str(v) for k, v in self.__mappings__.items()]
 
         command_string = \
-            'CREATE TABLE {table} ( {columns} ), PRIMARY KEY ( {keys} );'.format(table=key_table,
+            'CREATE TABLE {table} ( {columns}, PRIMARY KEY ( {keys} ) );'.format(table=key_table,
                                                                                  columns=', '.join(col_names_and_type),
                                                                                  keys=', '.join(self.primary_key))
         return command_string
