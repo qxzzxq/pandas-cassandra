@@ -18,7 +18,7 @@ test = [
     {'a': 4, 'b': 7, 'c': 'test'},
 ]
 
-cql_df = cql.DataFrame.from_dict(test)
+cql_df = cql.CassandraDataFrame.from_dict(test)
 
 column_types = {
     'a': cql.IntegerType('a', primary_key=True),
