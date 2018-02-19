@@ -33,7 +33,7 @@ cql_df.to_cassandra(cassandra_session=cassandra_session,
                     create_table=True)
 ```
 
-### Define your proper DateType and Module
+### Define your proper DataType and Model
 ```python
 import pandra as cql
 
