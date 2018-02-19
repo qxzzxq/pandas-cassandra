@@ -1,35 +1,6 @@
 # coding: utf-8
 
 
-# def cqlsh_create_table(key_space, table_name, data_types, primary_key):
-#     """
-#     Generate CREATE TABLE commande to execute
-#
-#     :param key_space:
-#     :param table_name:
-#     :param data_types: dict
-#     :param primary_key: name of the primary key
-#     :return:
-#     """
-#
-#     if not isinstance(data_types, dict):
-#         raise TypeError('data_type should be a {"column_name": "type", ...} like dict')
-#
-#     key_table = '{}.{}'.format(key_space, table_name) if key_space else table_name
-#
-#     col_names_and_type = []
-#     for column_name, dtype in data_types.items():
-#         if column_name == primary_key:
-#             col_names_and_type.append('{} {} PRIMARY KEY'.format(column_name, dtype))
-#         else:
-#             col_names_and_type.append('{} {}'.format(column_name, dtype))
-#
-#     command_string = \
-#         'CREATE TABLE {table} ( {column_name_and_type} );'.format(table=key_table,
-#                                                                   column_name_and_type=', '.join(col_names_and_type))
-#     return command_string
-
-
 class DataType:
 
     def __init__(self, name, column_type, primary_key):
@@ -132,3 +103,31 @@ class Model(dict, metaclass=ModelMetaclass):
                                                                                  columns=', '.join(col_names_and_type),
                                                                                  keys=', '.join(self.primary_key))
         return command_string
+
+# def cqlsh_create_table(key_space, table_name, data_types, primary_key):
+#     """
+#     Generate CREATE TABLE commande to execute
+#
+#     :param key_space:
+#     :param table_name:
+#     :param data_types: dict
+#     :param primary_key: name of the primary key
+#     :return:
+#     """
+#
+#     if not isinstance(data_types, dict):
+#         raise TypeError('data_type should be a {"column_name": "type", ...} like dict')
+#
+#     key_table = '{}.{}'.format(key_space, table_name) if key_space else table_name
+#
+#     col_names_and_type = []
+#     for column_name, dtype in data_types.items():
+#         if column_name == primary_key:
+#             col_names_and_type.append('{} {} PRIMARY KEY'.format(column_name, dtype))
+#         else:
+#             col_names_and_type.append('{} {}'.format(column_name, dtype))
+#
+#     command_string = \
+#         'CREATE TABLE {table} ( {column_name_and_type} );'.format(table=key_table,
+#                                                                   column_name_and_type=', '.join(col_names_and_type))
+#     return command_string

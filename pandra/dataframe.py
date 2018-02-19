@@ -5,7 +5,7 @@ import logging
 import cassandra
 import pandas as pd
 
-from . import cassandra_connector as cql
+from . import cassandra_connector as cql_connector
 
 
 class CassandraDataFrame(pd.DataFrame):
@@ -59,16 +59,16 @@ class CassandraDataFrame(pd.DataFrame):
         :return:
         """
 
-        # Check if table_name matches colnames of dataframe
+        # Check if table_name matches column names of DataFrame
         if set(self.columns) != set(data_types.keys()):
             raise KeyError('Column names do not match data types')
 
         # Check if all values of data_types are DataType object
-        if not all([isinstance(v, cql.DataType) for _, v in data_types.items()]):
+        if not all([isinstance(v, cql_connector.DataType) for _, v in data_types.items()]):
             raise ValueError('All values of data_types should be DataType objects.')
 
         # Create a cassandra connector
-        connector = type(table_name, (cql.Model,), data_types)
+        connector = type(table_name, (cql_connector.Model,), data_types)
 
         __create_table = create_table
 
