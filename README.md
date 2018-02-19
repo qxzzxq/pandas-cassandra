@@ -37,6 +37,9 @@ cql_df.to_cassandra(cassandra_session=cassandra_session,
 ```python
 import pandra as cql
 
+class MyDataType(cql.DataType):
+    def __init__(self, name, primary_key=False):
+        super(MyDataType, self).__init__(name, 'cassandra_data_type', primary_key)
 
 # Define your own class
 class User(cql.Model):
@@ -44,14 +47,18 @@ class User(cql.Model):
     name = cql.StringType('username', primary_key=True)
     email = cql.StringType('email')
     password = cql.StringType('password')
-    
+    mydatatype = cql.MyDataType('mydatatype')
 
 # Create a new User object
-u = User(id=123456, name='Michael', email='test@orm.org', password='my-pwd', test_attr = 1)
+u = User(id=123456, name='Michael', email='test@orm.org', password='my-pwd', mydatatype = 1)
 
 # Create table User
 u.create()
+# 'CREATE TABLE User ( id int, username text, email text, password text, mydatatype cassandra_data_type, PRIMARY KEY ( id, name ) );'
+
 
 # Insert data to table User
 u.insert()
+# ('INSERT INTO User (id, username, email, password, mydatatype) VALUES (%s, %s, %s, %s, %s)', [123456, 'Michael', 'test@orm.org', 'my-pwd', 1])
+
 ```
