@@ -1,9 +1,19 @@
 # coding: utf-8
 
+import logging
+
 
 class DataType:
+    """
+    Define the metaclass of all data types
+    """
 
     def __init__(self, name, column_type, primary_key):
+        """
+        :param name: Name of the column
+        :param column_type: data type
+        :param primary_key: true if primary key
+        """
         self.name = name
         self.column_type = column_type
         self.primary_key = primary_key
@@ -36,12 +46,13 @@ class ModelMetaclass(type):
     def __new__(cls, name, bases, attrs):
         if name == 'Model':
             return type.__new__(cls, name, bases, attrs)
-        print('Create new model : %s' % name)
+        logging.info('Create new model : %s' % name)
 
+        # Find all DataType in all attributes
         mappings = dict()
         for k, v in attrs.items():
             if isinstance(v, DataType):
-                print('Found mapping: %s ==> %s' % (k, v))
+                logging.info('Found mapping: %s ==> %s' % (k, v))
                 mappings[k] = v
 
         for k in mappings.keys():
@@ -70,12 +81,9 @@ class Model(dict, metaclass=ModelMetaclass):
 
     def __get_primary_key(self):
         key = [k for k, v in self.__mappings__.items() if v.primary_key]
-
         if len(key) == 0:
             raise AttributeError('{} object has no primary key'.format(self.__table__))
 
-        # if len(key) > 1:
-        #     raise AttributeError('{} object has more than one primary key'.format(self.__table__))
         return key
 
     def insert(self):
@@ -87,8 +95,6 @@ class Model(dict, metaclass=ModelMetaclass):
             params.append('%s')
             args.append(getattr(self, k, None))
         sql = 'INSERT INTO %s (%s) VALUES (%s)' % (self.__table__, ', '.join(fields), ', '.join(params))
-        # print('SQL: %s' % sql)
-        # print('ARGS: %s' % str(args))
 
         return sql, args
 
