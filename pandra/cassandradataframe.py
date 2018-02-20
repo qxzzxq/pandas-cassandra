@@ -13,8 +13,6 @@ class CassandraDataFrame(pd.DataFrame):
     Add a new methods to pandas DataFrame object.
     """
 
-    # def __init__(self, **kwargs):
-    #     super(DataFrame, self).__init__(**kwargs)
     @property
     def _constructor(self):
         return CassandraDataFrame
@@ -49,13 +47,12 @@ class CassandraDataFrame(pd.DataFrame):
                      create_table=False,
                      debug=False):
         """
-
         :param cassandra_session:
-        :param table_name:
+        :param table_name: name of table
         :param data_types: dict of DataType object
         :type data_types: dict
-        :param create_table:
-        :param debug:
+        :param create_table: True to create a new table
+        :param debug: True to print command, false to execute
         :return:
         """
 

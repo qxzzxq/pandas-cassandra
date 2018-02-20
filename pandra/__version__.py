@@ -7,6 +7,6 @@ __author_email__ = 'xuzhou.qin@jcdecaux.com'
 __description__ = ''
 
 __dependencies__ = [
-    'cassandra-driver==3.13.0',
-    'pandas==0.22.0',
+    'cassandra-driver',
+    'pandas',
 ]
