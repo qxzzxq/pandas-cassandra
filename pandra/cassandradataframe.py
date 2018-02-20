@@ -14,7 +14,7 @@ class CassandraDataFrame(pd.DataFrame):
     """
 
     # Add cassandra session to CassandraDataFrame
-    _metadata = ['cassandra_session']
+    _metadata = ['cassandra_session', 'data_type', 'table_name']
 
     @property
     def _constructor(self):

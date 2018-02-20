@@ -109,3 +109,6 @@ class Model(dict, metaclass=ModelMetaclass):
                                                                                  columns=', '.join(col_names_and_type),
                                                                                  keys=', '.join(self.primary_key))
         return command_string
+
+    def select(self):
+        pass
