@@ -33,6 +33,12 @@ cql_df.to_cassandra(cassandra_session=cassandra_session,
                     create_table=True)
 ```
 
+### Read table from Cassandra
+```python
+import pandra as cql
+cdf = cql.CassandraDataFrame.from_cassandra(cassandrasession, 'SELECT * FROM test_table')
+```
+
 ### Define your proper DataType and CassandraTable
 ```python
 import pandra as cql

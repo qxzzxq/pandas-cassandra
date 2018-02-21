@@ -10,7 +10,8 @@ from . import cassandra_connector as cql_connector
 
 class CassandraDataFrame(pd.DataFrame):
     """
-    Add a new methods to pandas DataFrame object.
+    CassandraDataFrame is a subclass of pandas.DataFrame.
+    It includes methods to interface with Cassandra database
     """
 
     # Add cassandra session to CassandraDataFrame
