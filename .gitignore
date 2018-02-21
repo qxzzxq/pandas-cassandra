@@ -105,3 +105,6 @@ pyofoenv/
 .idea/
 .DS_Store
 scratch.py
+
+# Gitlab Runner
+.yml
