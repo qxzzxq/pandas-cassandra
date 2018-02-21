@@ -41,10 +41,10 @@ class FloatType(DataType):
         super(FloatType, self).__init__(name, 'float', primary_key)
 
 
-class ModelMetaclass(type):
+class TableFactory(type):
 
     def __new__(cls, name, bases, attrs):
-        if name == 'Model':
+        if name == 'CassandraTable':
             return type.__new__(cls, name, bases, attrs)
         logging.info('Create new model : %s' % name)
 
@@ -74,10 +74,10 @@ class ModelMetaclass(type):
         return type.__new__(cls, name, bases, attrs)
 
 
-class Model(dict, metaclass=ModelMetaclass):
+class CassandraTable(dict, metaclass=TableFactory):
 
     def __init__(self, **kw):
-        super(Model, self).__init__(**kw)
+        super(CassandraTable, self).__init__(**kw)
         # self.primary_key = self.__get_primary_key()
 
     def __getattr__(self, key):

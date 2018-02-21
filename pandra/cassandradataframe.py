@@ -67,7 +67,7 @@ class CassandraDataFrame(pd.DataFrame):
             raise ValueError('All values of data_types should be DataType objects.')
 
         # Create a cassandra connector
-        connector = type(table_name, (cql_connector.Model,), data_types)
+        connector = type(table_name, (cql_connector.CassandraTable,), data_types)
         if create_table:
             cql_create = connector.create()
             try:

@@ -33,7 +33,7 @@ cql_df.to_cassandra(cassandra_session=cassandra_session,
                     create_table=True)
 ```
 
-### Define your proper DataType and Model
+### Define your proper DataType and CassandraTable
 ```python
 import pandra as cql
 
@@ -42,7 +42,7 @@ class MyDataType(cql.DataType):
         super(MyDataType, self).__init__(name, 'cassandra_data_type', primary_key)
 
 # Define your own class
-class User(cql.Model):
+class User(cql.CassandraTable):
     id = cql.IntegerType('id', primary_key=True)
     name = cql.StringType('username', primary_key=True)
     email = cql.StringType('email')
