@@ -96,4 +96,4 @@ class CassandraDataFrame(pd.DataFrame):
         # TODO: auto detect column type
         raw_query = cassandra_session.execute(cql_command)
         x = list(raw_query)[:]
-        return pd.DataFrame(x)
+        return cls(x)
