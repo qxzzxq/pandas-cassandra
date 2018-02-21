@@ -53,12 +53,10 @@ class User(cql.Model):
 u = User(id=123456, name='Michael', email='test@orm.org', password='my-pwd', mydatatype = 1)
 
 # Create table User
-u.create()
+User.create()
 # 'CREATE TABLE User ( id int, username text, email text, password text, mydatatype cassandra_data_type, PRIMARY KEY ( id, name ) );'
-
 
 # Insert data to table User
 u.insert()
 # ('INSERT INTO User (id, username, email, password, mydatatype) VALUES (%s, %s, %s, %s, %s)', [123456, 'Michael', 'test@orm.org', 'my-pwd', 1])
-
 ```

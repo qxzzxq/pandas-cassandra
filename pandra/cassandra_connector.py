@@ -50,16 +50,27 @@ class ModelMetaclass(type):
 
         # Find all DataType in all attributes
         mappings = dict()
+        primary_key = list()
         for k, v in attrs.items():
             if isinstance(v, DataType):
                 logging.info('Found mapping: %s ==> %s' % (k, v))
                 mappings[k] = v
+
+                # Add primary keys
+                if v.primary_key:
+                    primary_key.append(k)
 
         for k in mappings.keys():
             attrs.pop(k)
 
         attrs['__mappings__'] = mappings
         attrs['__table__'] = name
+
+        # Raise error if no primary key
+        if len(primary_key) == 0:
+            raise AttributeError('{} object has no primary key'.format(name))
+
+        attrs['__primary_keys__'] = primary_key
         return type.__new__(cls, name, bases, attrs)
 
 
@@ -67,7 +78,7 @@ class Model(dict, metaclass=ModelMetaclass):
 
     def __init__(self, **kw):
         super(Model, self).__init__(**kw)
-        self.primary_key = self.__get_primary_key()
+        # self.primary_key = self.__get_primary_key()
 
     def __getattr__(self, key):
         try:
@@ -78,13 +89,6 @@ class Model(dict, metaclass=ModelMetaclass):
 
     def __setattr__(self, key, value):
         self[key] = value
-
-    def __get_primary_key(self):
-        key = [k for k, v in self.__mappings__.items() if v.primary_key]
-        if len(key) == 0:
-            raise AttributeError('{} object has no primary key'.format(self.__table__))
-
-        return key
 
     def insert(self):
         fields = []
@@ -98,16 +102,17 @@ class Model(dict, metaclass=ModelMetaclass):
 
         return sql, args
 
-    def create(self, key_space=None):
-        table_name = self.__table__
+    @classmethod
+    def create(cls, key_space=None):
+        table_name = cls.__table__
         key_table = '{}.{}'.format(key_space, table_name) if key_space else table_name
 
-        col_names_and_type = [str(v) for k, v in self.__mappings__.items()]
+        col_names_and_type = [str(v) for k, v in cls.__mappings__.items()]
 
         command_string = \
             'CREATE TABLE {table} ( {columns}, PRIMARY KEY ( {keys} ) );'.format(table=key_table,
                                                                                  columns=', '.join(col_names_and_type),
-                                                                                 keys=', '.join(self.primary_key))
+                                                                                 keys=', '.join(cls.__primary_keys__))
         return command_string
 
     def select(self):

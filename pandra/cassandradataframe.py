@@ -68,18 +68,19 @@ class CassandraDataFrame(pd.DataFrame):
 
         # Create a cassandra connector
         connector = type(table_name, (cql_connector.Model,), data_types)
-        __create_table = create_table
+        if create_table:
+            cql_create = connector.create()
+            try:
+                if debug:
+                    print(cql_create)
+                else:
+                    cassandra_session.execute(cql_create)
+
+            except cassandra.AlreadyExists:
+                logging.WARN('Table {} already exists.'.format(table_name))
+
         for index, row in self.iterrows():
             row_to_insert = connector(**row.to_dict())
-
-            if __create_table:
-                cql_create = row_to_insert.create()
-                try:
-                    cassandra_session.execute(cql_create)
-                except cassandra.AlreadyExists:
-                    logging.WARN('Table {} already exists.'.format(table_name))
-                __create_table = False
-
             cql_insert, values = row_to_insert.insert()
             try:
                 if debug:
