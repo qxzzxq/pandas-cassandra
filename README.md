@@ -53,7 +53,7 @@ class User(cql.CassandraTable):
     name = cql.StringType('username', primary_key=True)
     email = cql.StringType('email')
     password = cql.StringType('password')
-    mydatatype = cql.MyDataType('mydatatype')
+    mydatatype = MyDataType('mydatatype')
 
 # Create a new User object
 u = User(id=123456, name='Michael', email='test@orm.org', password='my-pwd', mydatatype = 1)
