@@ -1,0 +1,11 @@
+before_script:
+  - . /home/gitlab-runner/venv/cassandra/bin/activate
+
+stages:
+  - test
+
+unittest:
+  stage: test
+  script:
+    - python3 -m unittest test
+    
