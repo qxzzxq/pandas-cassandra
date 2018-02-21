@@ -58,7 +58,7 @@ class TableFactory(type):
 
                 # Add primary keys
                 if v.primary_key:
-                    primary_key.append(k)
+                    primary_key.append(v.name)
 
         for k in mappings.keys():
             attrs.pop(k)
