@@ -42,7 +42,6 @@ class DataType:
         self.primary_key = primary_key
 
     def __str__(self):
-        # return '<%s:%s>' % (self.__class__.__name__, self.name)
         return '{} {}'.format(self.name, self.column_type)
 
 
@@ -132,14 +131,20 @@ class InetType(DataType):
 class TableFactory(type):
 
     def __new__(cls, name, bases, attrs):
+
+        # Copy the attrs variable to __attrs to prevent
+        # modification on the original attrs variable during
+        # the creation of CassandraTable
+        __attrs = dict(attrs)
+
         if name == 'CassandraTable':
-            return type.__new__(cls, name, bases, attrs)
+            return type.__new__(cls, name, bases, __attrs)
         logger.info('Initiate new TableFactory : %s' % name)
 
         # Find all DataType in all attributes
         mappings = dict()
         primary_key = list()
-        for k, v in attrs.items():
+        for k, v in __attrs.items():
             if isinstance(v, DataType):
                 logger.debug('Found mapping: %s ==> %s' % (k, v))
                 mappings[k] = v
@@ -149,17 +154,17 @@ class TableFactory(type):
                     primary_key.append(v.name)
 
         for k in mappings.keys():
-            attrs.pop(k)
+            __attrs.pop(k)
 
-        attrs['__mappings__'] = mappings
-        attrs['__table__'] = name
+        __attrs['__mappings__'] = mappings
+        __attrs['__table__'] = name
 
         # Raise error if no primary key
         if len(primary_key) == 0:
             raise AttributeError('{} object has no primary key'.format(name))
 
-        attrs['__primary_keys__'] = primary_key
-        return type.__new__(cls, name, bases, attrs)
+        __attrs['__primary_keys__'] = primary_key
+        return type.__new__(cls, name, bases, __attrs)
 
 
 class CassandraTable(dict, metaclass=TableFactory):

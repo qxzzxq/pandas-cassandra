@@ -17,21 +17,91 @@ class CassandraDataFrame(pd.DataFrame):
     """
 
     # Add cassandra session to CassandraDataFrame
-    _metadata = ['cassandra_session', 'data_type', 'table_name']
+    # _metadata = ['cassandra_session', 'data_types', 'table_name']
 
     @property
     def _constructor(self):
         return CassandraDataFrame
 
-    def _get_data_type(self):
+    def _infer_data_type_from_dtype(self, primary_key):
         """
         Create a {"column_name": "type", ...} like dict for each column of the data
         :return:
         """
+        if not primary_key:
+            logger.error('No primary key is given.')
+            raise ValueError('No primary key is given.')
 
-        column_names = self.columns
-        column_dtype = self.dtypes
-        pass
+        __dtype_mapping = {
+            'bool8': 'boolean',
+            'bool_': 'boolean',
+            'byte': 'int',
+            'bytes0': 'int',
+            'bytes_': 'int',
+            'cdouble': 'text',
+            'cfloat': 'text',
+            'clongdouble': 'text',
+            'clongfloat': 'text',
+            'complex128': 'text',
+            'complex64': 'text',
+            'complex_': 'text',
+            'csingle': 'text',
+            'datetime64': 'text',
+            'double': 'float',
+            'float16': 'float',
+            'float32': 'float',
+            'float64': 'float',
+            'float_': 'float',
+            'half': 'float',
+            'int0': 'int',
+            'int16': 'int',
+            'int32': 'int',
+            'int64': 'int',
+            'int8': 'int',
+            'int_': 'int',
+            'intc': 'int',
+            'intp': 'int',
+            'longcomplex': 'text',
+            'longdouble': 'double',
+            'longfloat': 'double',
+            'longlong': 'int',
+            'matrix': 'int',
+            'object': 'text',
+            'record': 'text',
+            'short': 'int',
+            'single': 'float',
+            'singlecomplex': 'text',
+            'str0': 'text',
+            'str_': 'text',
+            'string_': 'text',
+            'timedelta64': 'text',
+            'ubyte': 'int',
+            'uint': 'int',
+            'uint0': 'int',
+            'uint16': 'int',
+            'uint32': 'int',
+            'uint64': 'int',
+            'uint8': 'int',
+            'uintc': 'int',
+            'uintp': 'int',
+            'ulonglong': 'int',
+            'unicode_': 'text',
+            'ushort': 'int',
+            'void': 'text',
+            'void0': 'text'
+        }
+
+        column_names = self.columns.tolist()
+        column_dtype = [i.name for i in self.dtypes.tolist()]
+        cql_data_type = [__dtype_mapping[i] for i in column_dtype]
+        __iterator = dict(zip(column_names, cql_data_type))
+
+        data_types = {}
+        for k, v in __iterator.items():
+            type_of_k = cql_connector.DataType(name=k, column_type=v, primary_key=k in primary_key)
+            data_types[k] = type_of_k
+
+        return data_types
 
     def _create_data_type(self, types):
         """
@@ -49,6 +119,7 @@ class CassandraDataFrame(pd.DataFrame):
                      cassandra_session,
                      table_name=None,
                      data_types=None,
+                     primary_key=None,
                      create_table=False,
                      debug=False):
         """
@@ -58,8 +129,11 @@ class CassandraDataFrame(pd.DataFrame):
         :type data_types: dict
         :param create_table: True to create a new table
         :param debug: True to print command, false to execute
+        :param primary_key:
         :return:
         """
+        if not data_types:
+            data_types = self._infer_data_type_from_dtype(primary_key=primary_key)
 
         # Check if table_name matches column names of DataFrame
         if set(self.columns) != set(data_types.keys()):
@@ -71,6 +145,7 @@ class CassandraDataFrame(pd.DataFrame):
 
         # Create a cassandra connector
         connector = type(table_name, (cql_connector.CassandraTable,), data_types)
+
         if create_table:
             cql_create = connector.create()
             if not debug:
