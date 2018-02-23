@@ -60,7 +60,7 @@ u = User(id=123456, name='Michael', email='test@orm.org', password='my-pwd', myd
 
 # Create table User
 User.create()
-# 'CREATE TABLE User ( id int, username text, email text, password text, mydatatype cassandra_data_type, PRIMARY KEY ( id, name ) );'
+# 'CREATE TABLE User ( id int, username text, email text, password text, mydatatype cassandra_data_type, PRIMARY KEY ( id, username ) );'
 
 # Insert data to table User
 u.insert()
