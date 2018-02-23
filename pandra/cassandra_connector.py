@@ -2,6 +2,8 @@
 
 import logging
 
+logger = logging.getLogger(__name__)
+
 
 class DataType:
     """
@@ -46,14 +48,14 @@ class TableFactory(type):
     def __new__(cls, name, bases, attrs):
         if name == 'CassandraTable':
             return type.__new__(cls, name, bases, attrs)
-        logging.info('Create new model : %s' % name)
+        logger.info('Initiate new TableFactory : %s' % name)
 
         # Find all DataType in all attributes
         mappings = dict()
         primary_key = list()
         for k, v in attrs.items():
             if isinstance(v, DataType):
-                logging.info('Found mapping: %s ==> %s' % (k, v))
+                logger.debug('Found mapping: %s ==> %s' % (k, v))
                 mappings[k] = v
 
                 # Add primary keys
@@ -100,6 +102,7 @@ class CassandraTable(dict, metaclass=TableFactory):
             args.append(getattr(self, k, None))
         sql = 'INSERT INTO %s (%s) VALUES (%s)' % (self.__table__, ', '.join(fields), ', '.join(params))
 
+        logger.debug("{}, {}".format(sql, args))
         return sql, args
 
     @classmethod
@@ -113,6 +116,7 @@ class CassandraTable(dict, metaclass=TableFactory):
             'CREATE TABLE {table} ( {columns}, PRIMARY KEY ( {keys} ) );'.format(table=key_table,
                                                                                  columns=', '.join(col_names_and_type),
                                                                                  keys=', '.join(cls.__primary_keys__))
+        logger.debug(command_string)
         return command_string
 
     def select(self):

@@ -7,6 +7,8 @@ import pandas as pd
 
 from . import cassandra_connector as cql_connector
 
+logger = logging.getLogger(__name__)
+
 
 class CassandraDataFrame(pd.DataFrame):
     """
@@ -71,31 +73,28 @@ class CassandraDataFrame(pd.DataFrame):
         connector = type(table_name, (cql_connector.CassandraTable,), data_types)
         if create_table:
             cql_create = connector.create()
-            try:
-                if debug:
-                    print(cql_create)
-                else:
+            if not debug:
+                try:
                     cassandra_session.execute(cql_create)
-
-            except cassandra.AlreadyExists:
-                logging.WARN('Table {} already exists.'.format(table_name))
+                    logger.info('Create new table {}'.format(table_name))
+                except cassandra.AlreadyExists:
+                    logger.warning('Table {} already exists.'.format(table_name))
 
         for index, row in self.iterrows():
             row_to_insert = connector(**row.to_dict())
             cql_insert, values = row_to_insert.insert()
-            try:
-                if debug:
-                    print(cql_insert, values)
-                else:
+            if not debug:
+                try:
                     cassandra_session.execute(cql_insert, values)
+                except Exception as e:
+                    logger.warning(e)
 
-            except Exception as e:
-                logging.warning(e)
+        logger.info('Successfully inserted {} rows.'.format(self.shape[0]))
 
     @classmethod
     def from_cassandra(cls, cassandra_session, cql_command, async=False):
         # TODO: add async method
         # TODO: auto detect column type
         raw_query = cassandra_session.execute(cql_command)
-        x = list(raw_query)[:]
-        return cls(x)
+        frame = list(raw_query)[:]
+        return cls(frame)
