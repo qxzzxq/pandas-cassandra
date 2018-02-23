@@ -23,7 +23,7 @@ cql_df = cql.CassandraDataFrame.from_dict(test)
 column_types = {
     'a': cql.IntegerType('a', primary_key=True),
     'b': cql.IntegerType('b'),
-    'c': cql.StringType('c')
+    'c': cql.TextType('c')
 }
 
 cql_df.to_cassandra(cassandra_session=cassandra_session,
@@ -50,9 +50,9 @@ class MyDataType(cql.DataType):
 # Define your own class
 class User(cql.CassandraTable):
     id = cql.IntegerType('id', primary_key=True)
-    name = cql.StringType('username', primary_key=True)
-    email = cql.StringType('email')
-    password = cql.StringType('password')
+    name = cql.TextType('username', primary_key=True)
+    email = cql.TextType('email')
+    password = cql.TextType('password')
     mydatatype = MyDataType('mydatatype')
 
 # Create a new User object

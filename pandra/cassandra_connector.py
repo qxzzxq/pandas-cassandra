@@ -5,6 +5,27 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+# def get_dtype_mapping(np):
+#     """Get a mapping dict for numpy.dtypes and python types"""
+#     __dtypes = []
+#     __python_types = []
+#     for name in dir(np):
+#         obj = getattr(np, name)
+#         if hasattr(obj, 'dtype'):
+#             try:
+#                 if 'time' in name:
+#                     npn = obj(0, 'D')
+#                 else:
+#                     npn = obj(0)
+#                 nat = npn.item()
+#                 __dtypes.append(name)
+#                 __python_types.append(nat.__class__.__name__)
+#             except:
+#                 pass
+#
+#     return dict(zip(__dtypes, __python_types))
+
+
 class DataType:
     """
     Define the metaclass of all data types
@@ -25,22 +46,87 @@ class DataType:
         return '{} {}'.format(self.name, self.column_type)
 
 
-class StringType(DataType):
-
+class TextType(DataType):
+    """	UTF-8 encoded string"""
     def __init__(self, name, primary_key=False):
-        super(StringType, self).__init__(name, 'text', primary_key)
+        super(TextType, self).__init__(name, 'text', primary_key)
 
 
 class IntegerType(DataType):
-
+    """32-bit signed integer"""
     def __init__(self, name, primary_key=False):
         super(IntegerType, self).__init__(name, 'int', primary_key)
 
 
 class FloatType(DataType):
-
+    """	32-bit IEEE-754 floating point Java type"""
     def __init__(self, name, primary_key=False):
         super(FloatType, self).__init__(name, 'float', primary_key)
+
+
+class BoolType(DataType):
+    """true or false"""
+
+    def __init__(self, name, primary_key=False):
+        super(BoolType, self).__init__(name, 'boolean', primary_key)
+
+
+class DoubleType(DataType):
+    """64-bit IEEE-754 floating point Java type"""
+
+    def __init__(self, name, primary_key=False):
+        super(DoubleType, self).__init__(name, 'double', primary_key)
+
+
+class ListType(DataType):
+    """
+    A collection of one or more ordered elements: [literal, literal, literal]
+
+    CAUTION:
+        Lists have limitations and specific performance considerations.
+        Use a frozen list to decrease impact. In general, use a set instead of list.
+    """
+
+    def __init__(self, name, primary_key=False):
+        super(ListType, self).__init__(name, 'list', primary_key)
+
+
+class MapType(DataType):
+    """	A JSON-style array of literals: { literal : literal, literal : literal ... }"""
+
+    def __init__(self, name, primary_key=False):
+        super(MapType, self).__init__(name, 'map', primary_key)
+
+
+class SetType(DataType):
+    """A collection of one or more elements: { literal, literal, literal }"""
+
+    def __init__(self, name, primary_key=False):
+        super(SetType, self).__init__(name, 'set', primary_key)
+
+
+class UuidType(DataType):
+    """A UUID in standard UUID format"""
+
+    def __init__(self, name, primary_key=False):
+        super(UuidType, self).__init__(name, 'uuid', primary_key)
+
+
+class VarcharType(DataType):
+    """UTF-8 encoded string"""
+
+    def __init__(self, name, primary_key=False):
+        super(VarcharType, self).__init__(name, 'varchar', primary_key)
+
+
+class InetType(DataType):
+    """
+    IP address string in IPv4 or IPv6 format,
+    used by the python-cql driver and CQL native protocols
+    """
+
+    def __init__(self, name, primary_key=False):
+        super(InetType, self).__init__(name, 'inet', primary_key)
 
 
 class TableFactory(type):
