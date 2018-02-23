@@ -28,9 +28,9 @@ class TestCassandraConnector(unittest.TestCase):
 
         class User(pandra.cassandra_connector.CassandraTable):
             id = pandra.cassandra_connector.IntegerType('id', primary_key=True)
-            name = pandra.cassandra_connector.StringType('username', primary_key=True)
-            email = pandra.cassandra_connector.StringType('email')
-            password = pandra.cassandra_connector.StringType('password')
+            name = pandra.cassandra_connector.TextType('username', primary_key=True)
+            email = pandra.cassandra_connector.TextType('email')
+            password = pandra.cassandra_connector.TextType('password')
             mydatatype = MyDataType('mydatatype')
 
         cql_create = User.create(key_space="myKeySpace")
