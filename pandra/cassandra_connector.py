@@ -86,22 +86,25 @@ class ListType(DataType):
         Use a frozen list to decrease impact. In general, use a set instead of list.
     """
 
-    def __init__(self, name, primary_key=False):
-        super(ListType, self).__init__(name, 'list', primary_key)
+    def __init__(self, name, value_type='text', primary_key=False):
+        self.value_type = 'list<{}>'.format(value_type)
+        super(ListType, self).__init__(name, self.value_type, primary_key)
 
 
 class MapType(DataType):
     """	A JSON-style array of literals: { literal : literal, literal : literal ... }"""
 
-    def __init__(self, name, primary_key=False):
-        super(MapType, self).__init__(name, 'map', primary_key)
+    def __init__(self, name, key_type='text', value_type='text', primary_key=False):
+        self.value_type = 'map<{},{}>'.format(key_type, value_type)
+        super(MapType, self).__init__(name, self.value_type, primary_key)
 
 
 class SetType(DataType):
     """A collection of one or more elements: { literal, literal, literal }"""
 
-    def __init__(self, name, primary_key=False):
-        super(SetType, self).__init__(name, 'set', primary_key)
+    def __init__(self, name, value_type='text', primary_key=False):
+        self.value_type = 'set<{}>'.format(value_type)
+        super(SetType, self).__init__(name, self.value_type, primary_key)
 
 
 class UuidType(DataType):
